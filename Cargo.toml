@@ -4,8 +4,15 @@ version = "0.0.1"
 edition = "2021"
 
 
+[[bin]]
+name = "projects"
+path = "src/main.rs"
+
 [dependencies.anyhow]
 version = "1.0.89"
+
+[dependencies.bincode]
+version = "1.3.3"
 
 [dependencies.clap]
 version = "4.5.18"
@@ -14,18 +21,6 @@ features = ["derive"]
 [dependencies.serde]
 version = "1.0.210"
 features = ["derive"]
-
-[dependencies.tokio]
-version = "1.40.0"
-features = ["rt", "macros"]
-
-[dependencies.tokio-serde]
-version = "0.9.0"
-features = ["bincode"]
-
-[dependencies.tokio-util]
-version = "0.7.12"
-features = ["codec"]
 
 
 [profile.dev.package."*"]
