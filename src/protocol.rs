@@ -4,4 +4,6 @@ use crate::prelude::*;
 pub enum Message {
     Empty,
     StopDaemon { force: bool },
+    DaemonStatusRequest,
+    DaemonStatusResponse { config_dir: PathBuf },
 }

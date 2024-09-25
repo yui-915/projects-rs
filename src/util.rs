@@ -1,5 +1,4 @@
 use crate::prelude::*;
-use anyhow::anyhow;
 use std::process::Command;
 
 pub fn get_exe_name() -> Result<String> {

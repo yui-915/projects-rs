@@ -6,22 +6,39 @@ use std::{
 
 pub fn daemon(cmd: cli::Daemon) -> Result<()> {
     match cmd.command {
-        cli::DaemonCommands::Start => start_daemon(),
+        cli::DaemonCommands::Start { configs_dir } => start_daemon(configs_dir),
         cli::DaemonCommands::Status => daemon_status(),
         cli::DaemonCommands::Kill => kill_daemon(),
         cli::DaemonCommands::Stop { force } => stop_daemon(force),
-        cli::DaemonCommands::StartMain => unreachable!(),
+        cli::DaemonCommands::StartMain { .. } => unreachable!(),
     }
 }
 
-fn start_daemon() -> Result<()> {
+fn start_daemon(mut configs_dir: Option<PathBuf>) -> Result<()> {
     if is_daemon_running()? {
         println!("daemon is already running");
         return Ok(());
     }
 
+    if configs_dir.is_none() {
+        let home = std::env::var("HOME");
+        if let Ok(home) = home {
+            configs_dir = Some(PathBuf::from(home).join(".projects-rs"));
+        } else {
+            return Err(anyhow!("cannot find home, please specify configs dir"));
+        }
+    }
+
+    let configs_dir = configs_dir.unwrap();
+    fs::create_dir_all(&configs_dir)?;
+
+    let configs_dir = fs::canonicalize(configs_dir)?;
+    let configs_dir = configs_dir
+        .to_str()
+        .ok_or(anyhow!("cannot convert to str"))?;
+
     Command::new(std::env::current_exe()?)
-        .args(["daemon", "start-main"])
+        .args(["daemon", "start-main", configs_dir])
         .stdin(Stdio::null())
         .stdout(Stdio::null())
         .stderr(Stdio::null())
@@ -33,10 +50,21 @@ fn start_daemon() -> Result<()> {
 }
 
 fn daemon_status() -> Result<()> {
-    if is_daemon_running()? {
-        println!("daemon is running");
-    } else {
+    if !is_daemon_running()? {
         println!("daemon is not running");
+        return Ok(());
+    }
+
+    println!("daemon is running");
+    let mut socket = util::get_socket()?;
+    socket.send(Message::DaemonStatusRequest)?;
+
+    let msg = socket.recv()?;
+    match msg {
+        Message::DaemonStatusResponse { config_dir } => {
+            println!("configs dir: {}", config_dir.display());
+        }
+        _ => Err(anyhow!("unknown message"))?,
     }
 
     Ok(())

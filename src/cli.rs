@@ -1,3 +1,4 @@
+use crate::prelude::*;
 use clap::{Parser, Subcommand};
 
 pub fn parse() -> Cli {
@@ -23,7 +24,10 @@ pub struct Daemon {
 
 #[derive(Subcommand, Debug)]
 pub enum DaemonCommands {
-    Start,
+    Start {
+        #[clap(short, long)]
+        configs_dir: Option<PathBuf>,
+    },
     Status,
     Kill,
     Stop {
@@ -32,5 +36,7 @@ pub enum DaemonCommands {
     },
 
     #[clap(hide = true)]
-    StartMain,
+    StartMain {
+        configs_dir: PathBuf,
+    },
 }
