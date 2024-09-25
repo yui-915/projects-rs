@@ -27,9 +27,8 @@ fn main() -> Result<()> {
     match cli.command {
         Commands::Daemon(daemon) => match daemon.command {
             DaemonCommands::StartMain => daemon::main()?,
-            _ => todo!(),
+            _ => commands::daemon(daemon)?,
         },
-        Commands::Say(cmd) => commands::say(cmd)?,
     };
 
     Ok(())

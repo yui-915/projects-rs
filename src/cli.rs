@@ -13,7 +13,6 @@ pub struct Cli {
 #[derive(Subcommand, Debug)]
 pub enum Commands {
     Daemon(Daemon),
-    Say(Say),
 }
 
 #[derive(Parser, Debug)]
@@ -26,13 +25,12 @@ pub struct Daemon {
 pub enum DaemonCommands {
     Start,
     Status,
-    Stop,
+    Kill,
+    Stop {
+        #[clap(short, long)]
+        force: bool,
+    },
 
     #[clap(hide = true)]
     StartMain,
-}
-
-#[derive(Parser, Debug)]
-pub struct Say {
-    pub thing: String,
 }

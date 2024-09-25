@@ -1,4 +1,7 @@
 use crate::prelude::*;
+use anyhow::anyhow;
+
+type Sock = Socket<Message, UnixStream>;
 
 pub fn main() -> Result<()> {
     if fs::exists(SOCKET_PATH)? {
@@ -19,10 +22,18 @@ pub fn main() -> Result<()> {
     Ok(())
 }
 
-fn handle_connection(mut stream: Socket<Message, UnixStream>) -> Result<()> {
+fn handle_connection(mut socket: Sock) -> Result<()> {
     loop {
-        let msg = stream.recv()?;
-        println!("Received message: {:?}", msg);
+        let msg = socket.recv()?;
+        match msg {
+            Message::StopDaemon { force } => stop_daemon(&mut socket, force)?,
+            _ => Err(anyhow!("unknown message"))?,
+        }
     }
 }
 
+fn stop_daemon(socket: &mut Sock, _force: bool) -> Result<()> {
+    socket.send(Message::Empty)?;
+    println!("stopping daemon ...");
+    std::process::exit(0);
+}
