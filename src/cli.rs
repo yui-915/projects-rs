@@ -14,6 +14,11 @@ pub struct Cli {
 #[derive(Subcommand, Debug)]
 pub enum Commands {
     Daemon(Daemon),
+    New(New),
+    List(List),
+    Delete(Delete),
+    Start(Start),
+    Attach(Attach),
 }
 
 #[derive(Parser, Debug)]
@@ -39,4 +44,25 @@ pub enum DaemonCommands {
     StartMain {
         configs_dir: PathBuf,
     },
+}
+
+#[derive(Parser, Debug)]
+pub struct New {}
+
+#[derive(Parser, Debug)]
+pub struct List {}
+
+#[derive(Parser, Debug)]
+pub struct Delete {
+    pub project: String,
+}
+
+#[derive(Parser, Debug)]
+pub struct Start {
+    pub project: String,
+}
+
+#[derive(Parser, Debug)]
+pub struct Attach {
+    pub project: String,
 }

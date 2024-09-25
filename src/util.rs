@@ -1,5 +1,6 @@
 use crate::prelude::*;
 use std::process::Command;
+use std::sync::mpsc;
 
 pub fn get_exe_name() -> Result<String> {
     let exe = std::env::current_exe()?;
@@ -17,4 +18,37 @@ pub fn cmd(cmd: &[&str]) -> Result<String> {
     let output = Command::new(cmd[0]).args(cmd.iter().skip(1)).output()?;
     let res = String::from_utf8_lossy(&output.stdout).to_string();
     Ok(res)
+}
+
+pub fn get_other_selves_pids() -> Result<Vec<String>> {
+    let my_pid = std::process::id().to_string();
+    let my_name = util::get_exe_name()?;
+    let pids_str = util::cmd(&["pidof", &my_name, "-o", &my_pid])?;
+    Ok(pids_str.split_whitespace().map(|s| s.to_string()).collect())
+}
+
+pub fn is_daemon_running() -> Result<bool> {
+    let pids = get_other_selves_pids()?;
+    Ok(!pids.is_empty())
+}
+
+pub fn sleep(millis: u64) {
+    let duration = std::time::Duration::from_millis(millis);
+    std::thread::sleep(duration);
+}
+
+pub fn channel_thread<T: Read, F: Send + 'static + FnOnce() -> T>(f: F) -> mpsc::Receiver<Vec<u8>> {
+    let (tx, rx) = mpsc::channel::<Vec<u8>>();
+    std::thread::spawn(move || {
+        let mut stream = f();
+        loop {
+            let mut buffer = [0u8; 1024];
+            let n = stream.read(&mut buffer).unwrap();
+            if n > 0 {
+                tx.send(buffer[..n].to_vec()).unwrap();
+            }
+            sleep(10);
+        }
+    });
+    rx
 }

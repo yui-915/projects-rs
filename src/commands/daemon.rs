@@ -15,7 +15,7 @@ pub fn daemon(cmd: cli::Daemon) -> Result<()> {
 }
 
 fn start_daemon(mut configs_dir: Option<PathBuf>) -> Result<()> {
-    if is_daemon_running()? {
+    if util::is_daemon_running()? {
         println!("daemon is already running");
         return Ok(());
     }
@@ -50,7 +50,7 @@ fn start_daemon(mut configs_dir: Option<PathBuf>) -> Result<()> {
 }
 
 fn daemon_status() -> Result<()> {
-    if !is_daemon_running()? {
+    if !util::is_daemon_running()? {
         println!("daemon is not running");
         return Ok(());
     }
@@ -71,7 +71,7 @@ fn daemon_status() -> Result<()> {
 }
 
 fn kill_daemon() -> Result<()> {
-    let pids = get_other_selves_pids()?;
+    let pids = util::get_other_selves_pids()?;
 
     if pids.is_empty() {
         println!("daemon is not running");
@@ -88,7 +88,7 @@ fn kill_daemon() -> Result<()> {
 }
 
 fn stop_daemon(force: bool) -> Result<()> {
-    if !is_daemon_running()? {
+    if !util::is_daemon_running()? {
         println!("daemon is not running");
         return Ok(());
     }
@@ -101,16 +101,4 @@ fn stop_daemon(force: bool) -> Result<()> {
     println!("daemon stopped?");
 
     Ok(())
-}
-
-fn get_other_selves_pids() -> Result<Vec<String>> {
-    let my_pid = std::process::id().to_string();
-    let my_name = util::get_exe_name()?;
-    let pids_str = util::cmd(&["pidof", &my_name, "-o", &my_pid])?;
-    Ok(pids_str.split_whitespace().map(|s| s.to_string()).collect())
-}
-
-fn is_daemon_running() -> Result<bool> {
-    let pids = get_other_selves_pids()?;
-    Ok(!pids.is_empty())
 }

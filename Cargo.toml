@@ -8,6 +8,10 @@ edition = "2021"
 name = "projects"
 path = "src/main.rs"
 
+[dependencies]
+termion = { version = "4.0.2", default-features = false }
+toml = "0.8.19"
+
 [dependencies.anyhow]
 version = "1.0.89"
 
