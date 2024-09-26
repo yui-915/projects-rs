@@ -52,3 +52,23 @@ pub fn channel_thread<T: Read, F: Send + 'static + FnOnce() -> T>(f: F) -> mpsc:
     });
     rx
 }
+
+#[macro_export]
+macro_rules! map_enum {
+    {
+        match $thing:expr;
+        $enum:ident::... => $mod:ident::...;
+        $($variant:ident => $method:ident;)*
+        $(
+            !end auto;
+            $($tt:tt)+
+        )?
+    } => {
+        match $thing {
+        $(
+            $enum::$variant(i) => $mod::$method(i),
+        )*
+        $($($tt)+)?
+        }
+    };
+}

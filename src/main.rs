@@ -3,6 +3,7 @@ mod commands;
 mod daemon;
 mod data;
 mod socket;
+#[macro_use]
 pub mod util;
 
 use crate::prelude::*;
@@ -30,19 +31,23 @@ pub const SOCKET_PATH: &str = "/tmp/projects-rs-daemon-socket";
 
 fn main() -> Result<()> {
     let cli = cli::parse();
-    match cli.command {
-        Commands::Daemon(daemon) => match daemon.command {
-            DaemonCommands::StartMain { configs_dir } => daemon::main(configs_dir)?,
-            _ => commands::daemon(daemon)?,
-        },
-        Commands::New(new) => commands::new(new)?,
-        Commands::List(list) => commands::list(list)?,
-        Commands::Delete(delete) => commands::delete(delete)?,
-        Commands::Start(start) => commands::start(start)?,
-        Commands::Attach(attach) => commands::attach(attach)?,
-    };
+    map_enum! {
+            match cli.command;
+            Commands::... => commands::...;
 
-    Ok(())
+            New => new;
+            List => list;
+            Delete => delete;
+            Start => start;
+            Attach => attach;
+
+            !end auto;
+
+            Commands::Daemon(daemon) => match daemon.command {
+                DaemonCommands::StartMain { configs_dir } => daemon::main(configs_dir),
+                _ => commands::daemon(daemon),
+            }
+    }
 }
 
 #[cfg(not(target_os = "linux"))]
