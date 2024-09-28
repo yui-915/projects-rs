@@ -40,6 +40,8 @@ fn main() -> Result<()> {
             Delete => delete;
             Start => start;
             Attach => attach;
+            Stop => stop;
+            Kill => kill;
 
             !end auto;
 

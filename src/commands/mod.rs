@@ -15,3 +15,9 @@ pub use start::start;
 
 mod attach;
 pub use attach::attach;
+
+mod stop;
+pub use stop::stop;
+
+mod kill;
+pub use kill::kill;

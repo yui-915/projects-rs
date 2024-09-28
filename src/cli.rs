@@ -19,6 +19,8 @@ pub enum Commands {
     Delete(Delete),
     Start(Start),
     Attach(Attach),
+    Stop(Stop),
+    Kill(Kill),
 }
 
 #[derive(Parser, Debug)]
@@ -64,5 +66,15 @@ pub struct Start {
 
 #[derive(Parser, Debug)]
 pub struct Attach {
+    pub project: String,
+}
+
+#[derive(Parser, Debug)]
+pub struct Stop {
+    pub project: String,
+}
+
+#[derive(Parser, Debug)]
+pub struct Kill {
     pub project: String,
 }

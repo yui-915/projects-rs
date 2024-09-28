@@ -26,4 +26,8 @@ pub enum Message {
     AttachProjectResponse { success: bool },
     AttachData { data: Vec<u8> },
     Detach,
+    StopProjectRequest { project: String },
+    StopProjectResponse { success: bool },
+    KillProjectRequest { project: String },
+    KillProjectResponse { success: bool },
 }

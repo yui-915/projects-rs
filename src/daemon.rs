@@ -106,6 +106,8 @@ fn handle_connection(socket: &mut Sock) -> Result<()> {
             Message::DeleteProjectRequest { project } => delete_project(socket, project)?,
             Message::StartProjectRequest { project } => start_project(socket, project)?,
             Message::AttachProjectRequest { project } => attach_project(socket, project)?,
+            Message::StopProjectRequest { project } => stop_project(socket, project)?,
+            Message::KillProjectRequest { project } => kill_project(socket, project)?,
             _ => Err(anyhow!("unknown message"))?,
         }
     }
@@ -127,6 +129,35 @@ fn stop_daemon(socket: &mut Sock, force: bool) -> Result<()> {
         }
     }
     std::process::exit(0);
+}
+
+fn stop_project(socket: &mut Sock, project_name: String) -> Result<()> {
+    clean_procs();
+    if let Some(proc) = procs_mut().get(&project_name) {
+        let pid = proc.child.id();
+        let mut cmd = Command::new("kill");
+        cmd.arg(pid.to_string());
+        cmd.status()?;
+        socket.send(Message::StopProjectResponse { success: true })?;
+    } else {
+        socket.send(Message::StopProjectResponse { success: false })?;
+    }
+    Ok(())
+}
+
+fn kill_project(socket: &mut Sock, project_name: String) -> Result<()> {
+    clean_procs();
+    if let Some(proc) = procs_mut().get(&project_name) {
+        let pid = proc.child.id();
+        let mut cmd = Command::new("kill");
+        cmd.arg("-9");
+        cmd.arg(pid.to_string());
+        cmd.status()?;
+        socket.send(Message::StopProjectResponse { success: true })?;
+    } else {
+        socket.send(Message::StopProjectResponse { success: false })?;
+    }
+    Ok(())
 }
 
 fn send_daemon_status(socket: &mut Sock) -> Result<()> {
