@@ -24,13 +24,15 @@ pub fn attach(args: cli::Attach) -> Result<()> {
 }
 
 fn main_attach_loop(mut socket: Socket<Message, UnixStream>) -> Result<()> {
-    let mut stdout = std::io::stdout().into_raw_mode()?.into_alternate_screen()?;
-    write!(
-        stdout,
-        "{}{}",
-        termion::clear::All,
-        termion::cursor::Goto(1, 1)
-    )?;
+    // let mut stdout = std::io::stdout().into_raw_mode()?.into_alternate_screen()?;
+    let mut stdout = std::io::stdout().into_raw_mode()?;
+    // write!(
+    //     stdout,
+    //     "{}{}",
+    //     termion::clear::All,
+    //     termion::cursor::Goto(1, 1)
+    // )?;
+    std::process::Command::new("clear").status()?;
 
     let stdin = util::channel_thread(std::io::stdin);
 
@@ -56,6 +58,7 @@ fn main_attach_loop(mut socket: Socket<Message, UnixStream>) -> Result<()> {
                     data: data[..idx].to_vec(),
                 })?;
                 socket.send(Message::Detach)?;
+                std::process::Command::new("clear").status()?;
                 return Ok(());
             } else {
                 socket.send(Message::AttachData { data })?;
