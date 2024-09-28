@@ -1,6 +1,6 @@
 use crate::prelude::*;
 use termion::raw::IntoRawMode;
-use termion::screen::IntoAlternateScreen;
+// use termion::screen::IntoAlternateScreen;
 
 pub fn attach(args: cli::Attach) -> Result<()> {
     let mut socket = util::get_socket()?;

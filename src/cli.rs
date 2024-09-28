@@ -49,7 +49,14 @@ pub enum DaemonCommands {
 }
 
 #[derive(Parser, Debug)]
-pub struct New {}
+pub struct New {
+    #[clap(long)]
+    pub name: Option<String>,
+    #[clap(long)]
+    pub path: Option<PathBuf>,
+    #[clap(long)]
+    pub command: Option<String>,
+}
 
 #[derive(Parser, Debug)]
 pub struct List {}

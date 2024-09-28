@@ -1,14 +1,14 @@
 use crate::prelude::*;
 
-pub fn new(_: cli::New) -> Result<()> {
+pub fn new(args: cli::New) -> Result<()> {
     if !util::is_daemon_running()? {
         println!("daemon is not running");
         return Ok(());
     }
 
-    let mut name: Option<String> = None;
-    let mut path: Option<PathBuf> = None;
-    let mut command: Option<String> = None;
+    let mut name = args.name;
+    let mut path = args.path;
+    let mut command = args.command;
 
     while name.is_none() {
         print!("Project name: ");
