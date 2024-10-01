@@ -42,7 +42,7 @@ pub fn channel_thread<T: Read, F: Send + 'static + FnOnce() -> T>(f: F) -> mpsc:
     std::thread::spawn(move || {
         let mut stream = f();
         loop {
-            let mut buffer = [0u8; 1024];
+            let mut buffer = [0; 1048576]; // 1MiB
             let n = stream.read(&mut buffer).unwrap();
             if n > 0 {
                 tx.send(buffer[..n].to_vec()).unwrap();
